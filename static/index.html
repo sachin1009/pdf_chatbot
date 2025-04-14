@@ -422,11 +422,11 @@
         <p>Upload your PDFs and ask questions like you're chatting with it.</p>
       </div>
       <div class="header-right">
-        <div class="user-profile" id="userProfileArea">
+        <div class="user-profile">
           <img src="https://i.pravatar.cc/300" alt="User" class="user-avatar" />
           <div class="user-info">
-            <div class="user-name">Guest User</div>
-            <div class="user-email">Please log in</div>
+            <div class="user-name">Jane Doe</div>
+            <div class="user-email">jane@example.com</div>
           </div>
         </div>
       </div>
@@ -438,7 +438,7 @@
         <div class="upload-icon">📄</div>
         <h2>Click or drag file to upload</h2>
         <p>Supported files: PDF</p>
-        <input type="file" id="fileUpload" class="file-input" accept=".pdf" />
+        <input type="file" id="fileUpload" class="file-input" />
       </div>
     </div>
 
@@ -467,7 +467,7 @@
       </div>
       <div class="input-container">
         <input type="text" id="chatInput" class="chat-input" placeholder="Ask something..." />
-        <button class="btn" id="sendButton">Send</button>
+        <button class="btn" onclick="sendMessage()">Send</button>
       </div>
     </div>
 
@@ -502,202 +502,56 @@
   </div>
 
   <script>
-    // Global variables
-    let pdfFullText = ''; // Store the full PDF text
-    
-    // Initialize when the document is ready
-    document.addEventListener('DOMContentLoaded', function() {
-        // Check user authentication status
-        checkUserAuth();
-        
-        // Set up file upload listener
-        document.getElementById('fileUpload').addEventListener('change', handleFileUpload);
-        
-        // Set up send button listener
-        document.getElementById('sendButton').addEventListener('click', sendMessage);
-        
-        // Set up enter key for chat input
-        document.getElementById('chatInput').addEventListener('keydown', function(e) {
-            if(e.key === 'Enter') {
-                sendMessage();
-            }
-        });
-    });
-
-    // Authentication functions
-    function checkUserAuth() {
-        fetch('/user')
-            .then(response => response.json())
-            .then(data => {
-                if (data.authenticated) {
-                    // User is logged in
-                    document.querySelector('.user-avatar').src = data.profile_pic || 'https://i.pravatar.cc/300';
-                    document.querySelector('.user-name').textContent = data.name;
-                    document.querySelector('.user-email').textContent = data.email;
-                } else {
-                    // User is not logged in, show login button
-                    document.getElementById('userProfileArea').innerHTML = `
-                        <a href="/login" class="btn">Login with Google</a>
-                    `;
-                }
-            })
-            .catch(error => {
-                console.error('Authentication check failed:', error);
-                // If auth check fails, still allow using the app
-                console.log('Continuing without authentication');
-            });
-    }
-
-    // File handling
-    function handleFileUpload(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        
-        // Check if it's a PDF
-        if (!file.name.toLowerCase().endsWith('.pdf')) {
-            alert('Please upload a PDF file.');
-            return;
-        }
-        
-        const formData = new FormData();
-        formData.append('file', file);
-        
-        // Show loader
-        document.getElementById('loader').style.display = 'flex';
-        
-        fetch('/api/upload', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-                // Update UI with file info
-                document.getElementById('pdfName').textContent = data.filename;
-                document.getElementById('pdfInfo').classList.remove('hidden');
-                document.getElementById('previewCard').classList.remove('hidden');
-                document.getElementById('chatCard').classList.remove('hidden');
-                
-                // Update preview
-                document.getElementById('pdfPreview').textContent = data.text;
-                
-                // Store full text for queries
-                pdfFullText = data.full_text;
-                
-                // Add initial bot message
-                addBotMessage(`I've analyzed your PDF "${data.filename}" (${data.page_count} pages, ${data.char_count} characters). What would you like to know about it?`);
-            } else {
-                alert('Error: ' + data.error);
-            }
-        })
-        .catch(error => {
-            console.error('Upload failed:', error);
-            alert('Upload failed. Please try again.');
-        })
-        .finally(() => {
-            document.getElementById('loader').style.display = 'none';
-        });
-    }
-
-    // Chat functions
     function sendMessage() {
-        const input = document.getElementById('chatInput');
-        const message = input.value.trim();
-        if (!message) return;
-        
-        if (!pdfFullText) {
-            alert('Please upload a PDF file first.');
-            return;
-        }
-        
-        // Add user message to chat
-        addUserMessage(message);
-        input.value = '';
-        
-        // Show loader
-        document.getElementById('loader').style.display = 'flex';
-        
-        // Send query to backend
-        fetch('/api/query', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                pdf_text: pdfFullText,
-                question: message
-            })
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-                // Add bot response
-                addBotMessage(data.answer);
-            } else {
-                addBotMessage('Sorry, I encountered an error: ' + data.error);
-            }
-        })
-        .catch(error => {
-            console.error('Query failed:', error);
-            addBotMessage('Sorry, I encountered a technical issue. Please try again later.');
-        })
-        .finally(() => {
-            document.getElementById('loader').style.display = 'none';
-            // Scroll to bottom of chat
-            const chatContainer = document.getElementById('chatContainer');
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        });
+      const input = document.getElementById('chatInput');
+      const message = input.value.trim();
+      if (!message) return;
+
+      const chatContainer = document.getElementById('chatContainer');
+
+      // User message
+      const userMsg = document.createElement('div');
+      userMsg.className = 'chat-message user';
+      userMsg.innerHTML = `
+        <div class="message-header">
+          <span class="name">You</span>
+          <span class="time">${new Date().toLocaleTimeString()}</span>
+        </div>
+        <div class="message-content">${message}</div>
+      `;
+      chatContainer.appendChild(userMsg);
+
+      input.value = '';
+      document.getElementById('loader').style.display = 'flex';
+
+      // Simulate bot response
+      setTimeout(() => {
+        const botMsg = document.createElement('div');
+        botMsg.className = 'chat-message bot';
+        botMsg.innerHTML = `
+          <div class="message-header">
+            <span class="name">Bot</span>
+            <span class="time">${new Date().toLocaleTimeString()}</span>
+          </div>
+          <div class="message-content">This is a sample response for: "${message}"</div>
+        `;
+        chatContainer.appendChild(botMsg);
+        document.getElementById('loader').style.display = 'none';
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }, 1000);
     }
 
-    function addUserMessage(text) {
-        const chatContainer = document.getElementById('chatContainer');
-        const messageDiv = document.createElement('div');
-        messageDiv.className = 'chat-message user';
-        messageDiv.innerHTML = `
-            <div class="message-header">
-                <span class="name">You</span>
-                <span class="time">${new Date().toLocaleTimeString()}</span>
-            </div>
-            <div class="message-content">${escapeHtml(text)}</div>
-        `;
-        chatContainer.appendChild(messageDiv);
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-    }
-
-    function addBotMessage(text) {
-        const chatContainer = document.getElementById('chatContainer');
-        const messageDiv = document.createElement('div');
-        messageDiv.className = 'chat-message bot';
-        messageDiv.innerHTML = `
-            <div class="message-header">
-                <span class="name">Bot</span>
-                <span class="time">${new Date().toLocaleTimeString()}</span>
-            </div>
-            <div class="message-content">${text}</div>
-        `;
-        chatContainer.appendChild(messageDiv);
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-    }
-    
-    // Helper function to escape HTML and prevent XSS
-    function escapeHtml(unsafe) {
-        return unsafe
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    }
+    // Simulate file upload preview
+    document.getElementById('fileUpload').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        document.getElementById('pdfName').innerText = file.name;
+        document.getElementById('pdfInfo').classList.remove('hidden');
+        document.getElementById('previewCard').classList.remove('hidden');
+        document.getElementById('chatCard').classList.remove('hidden');
+        document.getElementById('pdfPreview').innerText = "Pretend this is a preview of " + file.name;
+      }
+    });
   </script>
 </body>
 </html>
