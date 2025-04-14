@@ -1,15 +1,72 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, redirect, url_for, session
 import fitz  # PyMuPDF
 import requests
 import base64
 import os
+import json
 from flask_cors import CORS
+from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+from authlib.integrations.flask_client import OAuth
+from datetime import timedelta
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 CORS(app)  # Enable cross-origin requests
 
-# ========== CONFIGURATION ==========
-MISTRAL_API_KEY = "F19TFQQ8UD4XRCXDcxFcL1pXHv8j1HA7"
+# Secret key for session
+app.secret_key = os.environ.get("SECRET_KEY", "dev_secret_key_change_in_production")
+app.config['SESSION_TYPE'] = 'filesystem'
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
+
+# Initialize login manager
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+# Initialize OAuth
+oauth = OAuth(app)
+
+# ========== Google OAuth Configuration ==========
+GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "your_google_client_id")
+GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", "your_google_client_secret")
+GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
+
+# Configure google oauth
+google = oauth.register(
+    name='google',
+    client_id=GOOGLE_CLIENT_ID,
+    client_secret=GOOGLE_CLIENT_SECRET,
+    server_metadata_url=GOOGLE_DISCOVERY_URL,
+    client_kwargs={
+        'scope': 'openid email profile'
+    }
+)
+
+# User model
+class User(UserMixin):
+    def __init__(self, id, name, email, profile_pic):
+        self.id = id
+        self.name = name
+        self.email = email
+        self.profile_pic = profile_pic
+
+# User loader callback
+@login_manager.user_loader
+def load_user(user_id):
+    if 'users' not in session:
+        return None
+    users = session['users']
+    if user_id in users:
+        user_info = users[user_id]
+        return User(
+            id=user_id,
+            name=user_info['name'],
+            email=user_info['email'],
+            profile_pic=user_info['profile_pic']
+        )
+    return None
+
+# ========== MISTRAL API CONFIGURATION ==========
+MISTRAL_API_KEY = os.environ.get("MISTRAL_API_KEY", "F19TFQQ8UD4XRCXDcxFcL1pXHv8j1HA7")
 MISTRAL_API_URL = "https://api.mistral.ai/v1/chat/completions"
 HEADERS = {
     "Authorization": f"Bearer {MISTRAL_API_KEY}",
@@ -36,8 +93,63 @@ def query_mistral(prompt):
     else:
         return f"❌ Error: {response.status_code} - {response.text}"
 
+# ========== AUTHENTICATION ROUTES ==========
+@app.route('/login')
+def login():
+    # Redirect to Google OAuth login page
+    redirect_uri = url_for('authorize', _external=True)
+    return google.authorize_redirect(redirect_uri)
+
+@app.route('/authorize')
+def authorize():
+    # Get authorization from Google
+    token = google.authorize_access_token()
+    resp = google.get('userinfo')
+    user_info = resp.json()
+    
+    # Save user info to session
+    if 'users' not in session:
+        session['users'] = {}
+    
+    user_id = user_info['sub']
+    session['users'][user_id] = {
+        'name': user_info['name'],
+        'email': user_info['email'],
+        'profile_pic': user_info.get('picture', '')
+    }
+    
+    # Create user and login
+    user = User(
+        id=user_id,
+        name=user_info['name'],
+        email=user_info['email'],
+        profile_pic=user_info.get('picture', '')
+    )
+    login_user(user)
+    
+    # Redirect to home page
+    return redirect('/')
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect('/')
+
+@app.route('/user')
+def get_user():
+    if current_user.is_authenticated:
+        return jsonify({
+            'authenticated': True,
+            'name': current_user.name,
+            'email': current_user.email,
+            'profile_pic': current_user.profile_pic
+        })
+    else:
+        return jsonify({'authenticated': False})
+
 # ========== API ENDPOINTS ==========
 @app.route('/api/upload', methods=['POST'])
+@login_required
 def upload_pdf():
     if 'file' not in request.files:
         return jsonify({'error': 'No file part'}), 400
@@ -65,6 +177,7 @@ def upload_pdf():
         return jsonify({'error': 'Only PDF files are allowed'}), 400
 
 @app.route('/api/query', methods=['POST'])
+@login_required
 def query_pdf():
     data = request.json
     if not data or 'pdf_text' not in data or 'question' not in data:
@@ -90,4 +203,4 @@ def index():
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=port, debug=True)

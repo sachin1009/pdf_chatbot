@@ -1,14 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF Chatbot | AI Assistant</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PDF Chatbot | AI Assistant</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
             --primary-color: #4361ee;
             --secondary-color: #3f37c9;
             --background-color: #f8f9fa;
@@ -17,6 +15,8 @@
             --text-light: #6c757d;
             --border-color: #e9ecef;
             --accent-light: #f0f7ff;
+            --google-blue: #4285F4;
+            --google-red: #EA4335;
         }
 
         * {
@@ -51,6 +51,40 @@
 
         .header-left {
             flex: 1;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary-color);
+        }
+
+        .user-info {
+            text-align: right;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .user-email {
+            font-size: 12px;
+            color: var(--text-light);
         }
 
         .logo {
@@ -89,6 +123,44 @@
             padding: 2rem;
             margin-bottom: 2rem;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .login-container {
+            max-width: 500px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .auth-options {
+            margin-top: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .google-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            background-color: #fff;
+            color: #757575;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            width: 100%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .google-btn:hover {
+            background-color: #f5f5f5;
+        }
+
+        .google-icon {
+            display: flex;
         }
 
         .upload-area {
@@ -339,296 +411,147 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Header -->
-        <header class="header">
-            <div class="header-left">
-                <div class="logo">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                        <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20M10,19H8V18H10V19M10,17H8V16H10V17M10,15H8V14H10V15M14,19H12V18H14V19M14,17H12V16H14V17M14,15H12V14H14V15Z" />
-                    </svg>
-                    <h1>PDF Chatbot</h1>
-                </div>
-                <p>Upload any PDF document and ask questions using AI-powered assistance</p>
-            </div>
-        </header>
-
-        <!-- Features Section -->
-        <section class="features">
-            <div class="feature">
-                <div class="feature-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                        <path d="M9,10V12H7V10H9M13,10V12H11V10H13M17,10V12H15V10H17M19,3A2,2 0 0,1 21,5V19A2,2 0 0,1 19,21H5C3.89,21 3,20.1 3,19V5A2,2 0 0,1 5,3H19M9,14V16H7V14H9M13,14V16H11V14H13M19,19V8H5V19H19M17,14V16H15V14H17Z" />
-                    </svg>
-                </div>
-                <h3>Upload PDF Documents</h3>
-                <p>Seamlessly upload and process any PDF file with our intuitive interface.</p>
-            </div>
-            <div class="feature">
-                <div class="feature-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                        <path d="M20,2H4A2,2 0 0,0 2,4V22L6,18H20A2,2 0 0,0 22,16V4A2,2 0 0,0 20,2M6,9H18V11H6M14,14H6V12H14M18,8H6V6H18" />
-                    </svg>
-                </div>
-                <h3>Interactive Chatbot</h3>
-                <p>Ask questions about your documents and get accurate, AI-powered answers.</p>
-            </div>
-            <div class="feature">
-                <div class="feature-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                        <path d="M17,22V20H20V17H22V20.5C22,21.32 21.32,22 20.5,22H17M7,22H3.5C2.68,22 2,21.32 2,20.5V17H4V20H7V22M17,2H20.5C21.32,2 22,2.68 22,3.5V7H20V4H17V2M3.5,2H7V4H4V7H2V3.5C2,2.68 2.68,2 3.5,2M10,6V8H14V6H10M10,10V12H14V10H10M10,14V16H14V14H10M16,6H18V18H16V6M6,6H8V18H6V6Z" />
-                    </svg>
-                </div>
-                <h3>Powered by Mistral AI</h3>
-                <p>Leveraging advanced AI technology to extract insights from your documents.</p>
-            </div>
-        </section>
-
-        <!-- Upload Section -->
-        <div id="upload-section" class="card">
-            <h2>Upload Your PDF</h2>
-            <div id="upload-area" class="upload-area">
-                <div class="upload-icon">📄</div>
-                <p>Drag and drop your PDF file here<br>or click to browse</p>
-                <input type="file" id="file-input" class="file-input" accept=".pdf">
-            </div>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-left">
+        <div class="logo">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 2a1 1 0 0 0-1 1v18a1 1 0 0 0 1.6.8l10-7a1 1 0 0 0 0-1.6l-10-7A1 1 0 0 0 6 2z"/></svg>
+          <h1>PDF Chatbot</h1>
         </div>
-
-        <!-- PDF Preview Section (Initially Hidden) -->
-        <div id="pdf-preview" class="card hidden">
-            <div class="pdf-info">
-                <div class="pdf-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                        <path d="M20,2H8C6.9,2 6,2.9 6,4V16C6,17.1 6.9,18 8,18H20C21.1,18 22,17.1 22,16V4C22,2.9 21.1,2 20,2M20,16H8V4H20V16M4,6H2V20C2,21.1 2.9,22 4,22H18V20H4V6M16,12V9C16,8.45 15.55,8 15,8H13V13H15C15.55,13 16,12.55 16,12M14,9H15V12H14V9M18,11H19V10H18V9H19V8H17V13H18V11M9,9H12V10H10V11H12V12H10V13H9V9Z" />
-                    </svg>
-                </div>
-                <div class="pdf-details">
-                    <h3 id="pdf-name">document.pdf</h3>
-                    <p id="pdf-info">Loading...</p>
-                </div>
-                <button id="new-pdf" class="btn btn-secondary">Upload New</button>
-            </div>
-            
-            <h3>Content Preview</h3>
-            <div id="preview-text" class="preview-text">Loading PDF content...</div>
+        <p>Upload your PDFs and ask questions like you're chatting with it.</p>
+      </div>
+      <div class="header-right">
+        <div class="user-profile">
+          <img src="https://i.pravatar.cc/300" alt="User" class="user-avatar" />
+          <div class="user-info">
+            <div class="user-name">Jane Doe</div>
+            <div class="user-email">jane@example.com</div>
+          </div>
         </div>
+      </div>
+    </header>
 
-        <!-- Chat Section (Initially Hidden) -->
-        <div id="chat-section" class="card hidden">
-            <h2>Ask Questions About Your PDF</h2>
-            <div id="chat-container" class="chat-container">
-                <!-- Chat messages will be inserted here -->
-            </div>
-            <div class="input-container">
-                <input type="text" id="chat-input" class="chat-input" placeholder="Type your question about the PDF...">
-                <button id="send-btn" class="btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="22" y1="2" x2="11" y2="13"></line>
-                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                    </svg>
-                    Send
-                </button>
-            </div>
-        </div>
-
-        <!-- Loading Spinner -->
-        <div id="loader" class="loader">
-            <div class="spinner"></div>
-        </div>
-
-        <!-- Footer -->
-        <footer class="footer">
-            <p>Powered by Mistral AI • PDF Chatbot © 2025</p>
-        </footer>
+    <!-- Upload Area -->
+    <div class="card">
+      <div class="upload-area" onclick="document.getElementById('fileUpload').click()">
+        <div class="upload-icon">📄</div>
+        <h2>Click or drag file to upload</h2>
+        <p>Supported files: PDF</p>
+        <input type="file" id="fileUpload" class="file-input" />
+      </div>
     </div>
 
-    <script>
-        // DOM Elements
-        const uploadSection = document.getElementById('upload-section');
-        const pdfPreview = document.getElementById('pdf-preview');
-        const chatSection = document.getElementById('chat-section');
-        const uploadArea = document.getElementById('upload-area');
-        const fileInput = document.getElementById('file-input');
-        const pdfName = document.getElementById('pdf-name');
-        const pdfInfo = document.getElementById('pdf-info');
-        const previewText = document.getElementById('preview-text');
-        const newPdfBtn = document.getElementById('new-pdf');
-        const chatInput = document.getElementById('chat-input');
-        const sendBtn = document.getElementById('send-btn');
-        const chatContainer = document.getElementById('chat-container');
-        const loader = document.getElementById('loader');
+    <!-- PDF Info Section -->
+    <div class="card pdf-info hidden" id="pdfInfo">
+      <div class="pdf-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 2H8a2 2 0 0 0-2 2v16l7-3 7 3V4a2 2 0 0 0-1-1.73z"/></svg>
+      </div>
+      <div class="pdf-details">
+        <h3 id="pdfName">example.pdf</h3>
+        <p>Preview and interact below.</p>
+      </div>
+    </div>
 
-        // Store PDF text for queries
-        let fullPdfText = '';
+    <!-- PDF Preview -->
+    <div class="card hidden" id="previewCard">
+      <h2>Preview</h2>
+      <div class="preview-text" id="pdfPreview">Extracting content...</div>
+    </div>
 
-        // Event listeners
-        uploadArea.addEventListener('click', () => fileInput.click());
-        uploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadArea.style.borderColor = '#4361ee';
-            uploadArea.style.backgroundColor = 'rgba(67, 97, 238, 0.05)';
-        });
-        
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.style.borderColor = '#e9ecef';
-            uploadArea.style.backgroundColor = 'transparent';
-        });
-        
-        uploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadArea.style.borderColor = '#e9ecef';
-            uploadArea.style.backgroundColor = 'transparent';
-            
-            const files = e.dataTransfer.files;
-            if (files.length > 0 && files[0].type === 'application/pdf') {
-                uploadPdf(files[0]);
-            } else {
-                alert('Please upload a PDF file.');
-            }
-        });
+    <!-- Chat Area -->
+    <div class="card hidden" id="chatCard">
+      <h2>Chat with your PDF</h2>
+      <div class="chat-container" id="chatContainer">
+        <!-- Chat messages will be injected here -->
+      </div>
+      <div class="input-container">
+        <input type="text" id="chatInput" class="chat-input" placeholder="Ask something..." />
+        <button class="btn" onclick="sendMessage()">Send</button>
+      </div>
+    </div>
 
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                uploadPdf(e.target.files[0]);
-            }
-        });
+    <!-- Loader -->
+    <div class="loader" id="loader">
+      <div class="spinner"></div>
+    </div>
 
-        newPdfBtn.addEventListener('click', () => {
-            uploadSection.classList.remove('hidden');
-            pdfPreview.classList.add('hidden');
-            chatSection.classList.add('hidden');
-            fileInput.value = '';
-            fullPdfText = '';
-        });
+    <!-- Features -->
+    <div class="features">
+      <div class="feature">
+        <div class="feature-icon">📎</div>
+        <h3>PDF Upload</h3>
+        <p>Easily upload and analyze your PDF files.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🤖</div>
+        <h3>AI Assistant</h3>
+        <p>Ask questions and get accurate answers instantly.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">⚡</div>
+        <h3>Fast Responses</h3>
+        <p>Enjoy lightning-fast and relevant answers.</p>
+      </div>
+    </div>
 
-        chatInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                sendQuestion();
-            }
-        });
+    <!-- Footer -->
+    <footer class="footer">
+      &copy; 2025 PDF Chatbot. Built with 💙 by Your Name.
+    </footer>
+  </div>
 
-        sendBtn.addEventListener('click', sendQuestion);
+  <script>
+    function sendMessage() {
+      const input = document.getElementById('chatInput');
+      const message = input.value.trim();
+      if (!message) return;
 
-        // Functions
-        function uploadPdf(file) {
-            showLoader();
-            
-            const formData = new FormData();
-            formData.append('file', file);
-            
-            fetch('/api/upload', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                hideLoader();
-                
-                if (data.success) {
-                    // Update UI
-                    pdfName.textContent = data.filename;
-                    pdfInfo.textContent = `${data.page_count} pages • ${data.char_count} characters`;
-                    previewText.textContent = data.text;
-                    fullPdfText = data.full_text;
-                    
-                    // Show preview and chat sections
-                    uploadSection.classList.add('hidden');
-                    pdfPreview.classList.remove('hidden');
-                    chatSection.classList.remove('hidden');
-                    
-                    // Add welcome message
-                    addBotMessage("Hello! I've processed your PDF. What would you like to know about it?");
-                } else {
-                    alert('Error: ' + (data.error || 'Failed to process PDF'));
-                }
-            })
-            .catch(error => {
-                hideLoader();
-                alert('Error: ' + error.message);
-            });
-        }
+      const chatContainer = document.getElementById('chatContainer');
 
-        function sendQuestion() {
-            const question = chatInput.value.trim();
-            if (!question) return;
-            
-            // Add user message to chat
-            addUserMessage(question);
-            chatInput.value = '';
-            
-            // Show loader
-            showLoader();
-            
-            // Send request to API
-            fetch('/api/query', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    pdf_text: fullPdfText,
-                    question: question
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                hideLoader();
-                
-                if (data.success) {
-                    addBotMessage(data.answer);
-                } else {
-                    addBotMessage("I'm sorry, I couldn't process your question. Please try again.");
-                }
-            })
-            .catch(error => {
-                hideLoader();
-                addBotMessage("Sorry, there was an error processing your request. Please try again later.");
-            });
-        }
+      // User message
+      const userMsg = document.createElement('div');
+      userMsg.className = 'chat-message user';
+      userMsg.innerHTML = `
+        <div class="message-header">
+          <span class="name">You</span>
+          <span class="time">${new Date().toLocaleTimeString()}</span>
+        </div>
+        <div class="message-content">${message}</div>
+      `;
+      chatContainer.appendChild(userMsg);
 
-        function addUserMessage(message) {
-            const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            
-            const messageDiv = document.createElement('div');
-            messageDiv.className = 'chat-message user';
-            
-            messageDiv.innerHTML = `
-                <div class="message-header">
-                    <span class="name">You</span>
-                    <span class="time">${timestamp}</span>
-                </div>
-                <div class="message-content">${message}</div>
-            `;
-            
-            chatContainer.appendChild(messageDiv);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
+      input.value = '';
+      document.getElementById('loader').style.display = 'flex';
 
-        function addBotMessage(message) {
-            const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            
-            const messageDiv = document.createElement('div');
-            messageDiv.className = 'chat-message bot';
-            
-            messageDiv.innerHTML = `
-                <div class="message-header">
-                    <span class="name">AI Assistant</span>
-                    <span class="time">${timestamp}</span>
-                </div>
-                <div class="message-content">${message}</div>
-            `;
-            
-            chatContainer.appendChild(messageDiv);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
+      // Simulate bot response
+      setTimeout(() => {
+        const botMsg = document.createElement('div');
+        botMsg.className = 'chat-message bot';
+        botMsg.innerHTML = `
+          <div class="message-header">
+            <span class="name">Bot</span>
+            <span class="time">${new Date().toLocaleTimeString()}</span>
+          </div>
+          <div class="message-content">This is a sample response for: "${message}"</div>
+        `;
+        chatContainer.appendChild(botMsg);
+        document.getElementById('loader').style.display = 'none';
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }, 1000);
+    }
 
-        function showLoader() {
-            loader.style.display = 'flex';
-        }
-
-        function hideLoader() {
-            loader.style.display = 'none';
-        }
-    </script>
+    // Simulate file upload preview
+    document.getElementById('fileUpload').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        document.getElementById('pdfName').innerText = file.name;
+        document.getElementById('pdfInfo').classList.remove('hidden');
+        document.getElementById('previewCard').classList.remove('hidden');
+        document.getElementById('chatCard').classList.remove('hidden');
+        document.getElementById('pdfPreview').innerText = "Pretend this is a preview of " + file.name;
+      }
+    });
+  </script>
 </body>
 </html>
