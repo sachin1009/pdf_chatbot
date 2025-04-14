@@ -12,9 +12,10 @@ from datetime import timedelta
 app = Flask(__name__, static_folder='static')
 CORS(app)  # Enable cross-origin requests
 
-# Secret key for session
+# Secret key and session config
 app.secret_key = os.environ.get("SECRET_KEY", "dev_secret_key_change_in_production")
 app.config['SESSION_TYPE'] = 'filesystem'
+app.config['SESSION_FILE_DIR'] = os.path.join(app.root_path, 'sessions')
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
 
 # Initialize login manager
@@ -30,15 +31,12 @@ GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "your_google_client_id")
 GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", "your_google_client_secret")
 GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
 
-# Configure google oauth
 google = oauth.register(
     name='google',
     client_id=GOOGLE_CLIENT_ID,
     client_secret=GOOGLE_CLIENT_SECRET,
     server_metadata_url=GOOGLE_DISCOVERY_URL,
-    client_kwargs={
-        'scope': 'openid email profile'
-    }
+    client_kwargs={'scope': 'openid email profile'}
 )
 
 # User model
@@ -49,7 +47,6 @@ class User(UserMixin):
         self.email = email
         self.profile_pic = profile_pic
 
-# User loader callback
 @login_manager.user_loader
 def load_user(user_id):
     if 'users' not in session:
@@ -73,7 +70,6 @@ HEADERS = {
     "Content-Type": "application/json"
 }
 
-# ========== FUNCTIONS ==========
 def extract_text_from_pdf(pdf_bytes):
     doc = fitz.open(stream=pdf_bytes, filetype="pdf")
     text = ""
@@ -83,7 +79,7 @@ def extract_text_from_pdf(pdf_bytes):
 
 def query_mistral(prompt):
     payload = {
-        "model": "mistral-medium",  # or mistral-small / mistral-large
+        "model": "mistral-medium",
         "messages": [{"role": "user", "content": prompt}],
         "temperature": 0.7
     }
@@ -96,29 +92,25 @@ def query_mistral(prompt):
 # ========== AUTHENTICATION ROUTES ==========
 @app.route('/login')
 def login():
-    # Redirect to Google OAuth login page
     redirect_uri = url_for('authorize', _external=True)
     return google.authorize_redirect(redirect_uri)
 
 @app.route('/authorize')
 def authorize():
-    # Get authorization from Google
     token = google.authorize_access_token()
     resp = google.get('userinfo')
     user_info = resp.json()
-    
-    # Save user info to session
+
     if 'users' not in session:
         session['users'] = {}
-    
+
     user_id = user_info['sub']
     session['users'][user_id] = {
         'name': user_info['name'],
         'email': user_info['email'],
         'profile_pic': user_info.get('picture', '')
     }
-    
-    # Create user and login
+
     user = User(
         id=user_id,
         name=user_info['name'],
@@ -126,8 +118,6 @@ def authorize():
         profile_pic=user_info.get('picture', '')
     )
     login_user(user)
-    
-    # Redirect to home page
     return redirect('/')
 
 @app.route('/logout')
@@ -153,12 +143,12 @@ def get_user():
 def upload_pdf():
     if 'file' not in request.files:
         return jsonify({'error': 'No file part'}), 400
-    
+
     file = request.files['file']
-    
+
     if file.filename == '':
         return jsonify({'error': 'No selected file'}), 400
-    
+
     if file and file.filename.endswith('.pdf'):
         pdf_bytes = file.read()
         try:
@@ -167,8 +157,8 @@ def upload_pdf():
                 'success': True,
                 'filename': file.filename,
                 'page_count': page_count,
-                'text': text[:2000],  # Preview text
-                'full_text': text,    # Full text for future queries
+                'text': text[:2000],
+                'full_text': text,
                 'char_count': len(text)
             })
         except Exception as e:
@@ -182,10 +172,10 @@ def query_pdf():
     data = request.json
     if not data or 'pdf_text' not in data or 'question' not in data:
         return jsonify({'error': 'Missing required data'}), 400
-    
+
     pdf_text = data['pdf_text']
     question = data['question']
-    
+
     try:
         context = f"The following text is extracted from a PDF document:\n\n{pdf_text[:5000]}\n\nAnswer this question based on the PDF content:\n{question}"
         answer = query_mistral(context)
@@ -196,7 +186,6 @@ def query_pdf():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# Serve static files
 @app.route('/')
 def index():
     return app.send_static_file('index.html')
