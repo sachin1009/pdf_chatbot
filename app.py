@@ -142,38 +142,37 @@ def login():
     redirect_uri = url_for('authorize', _external=True)
     return google.authorize_redirect(redirect_uri)
 
+
 @app.route('/authorize')
 def authorize():
-    if not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET:
-        return jsonify({'error': 'Google OAuth not configured'}), 500
+    # Get authorization from Google
+    token = google.authorize_access_token()
+    resp = google.get('https://www.googleapis.com/oauth2/v3/userinfo')  # Updated URL
+    user_info = resp.json()
     
-    try:
-        token = google.authorize_access_token()
-        resp = google.get('userinfo')
-        user_info = resp.json()
+    # Save user info to session
+    if 'users' not in session:
+        session['users'] = {}
+    
+    user_id = user_info['sub']
+    session['users'][user_id] = {
+        'name': user_info['name'],
+        'email': user_info['email'],
+        'profile_pic': user_info.get('picture', '')
+    }
+    
+    # Create user and login
+    user = User(
+        id=user_id,
+        name=user_info['name'],
+        email=user_info['email'],
+        profile_pic=user_info.get('picture', '')
+    )
+    login_user(user)
+    
+    # Redirect to home page
+    return redirect('/')
 
-        if 'users' not in session:
-            session['users'] = {}
-
-        user_id = user_info['sub']
-        session['users'][user_id] = {
-            'name': user_info.get('name', 'User'),
-            'email': user_info.get('email', ''),
-            'profile_pic': user_info.get('picture', '')
-        }
-        session.modified = True  # Ensure session is saved
-
-        user = User(
-            id=user_id,
-            name=user_info.get('name', 'User'),
-            email=user_info.get('email', ''),
-            profile_pic=user_info.get('picture', '')
-        )
-        login_user(user)
-        return redirect('/')
-    except Exception as e:
-        app.logger.error(f"OAuth error: {str(e)}")
-        return jsonify({'error': f'Authentication failed: {str(e)}'}), 500
 
 @app.route('/logout')
 def logout():
