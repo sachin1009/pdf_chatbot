@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: pdf-chatbot
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true # This will auto-generate a random secret key
+      - key: GOOGLE_CLIENT_ID
+        sync: false # You'll need to set this manually in the dashboard
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false # You'll need to set this manually in the dashboard
+      - key: MISTRAL_API_KEY
+        sync: false # You'll need to set this manually in the dashboard
+    autoDeploy: true # Enable automatic deployments
+    healthCheckPath: /health # Use the health check endpoint we added
