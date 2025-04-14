@@ -73,7 +73,7 @@ def load_user(user_id):
     return None
 
 # ========== MISTRAL API CONFIGURATION ==========
-MISTRAL_API_KEY = os.environ.get("F19TFQQ8UD4XRCXDcxFcL1pXHv8j1HA7")
+MISTRAL_API_KEY = os.environ.get("MISTRAL_API_KEY")
 MISTRAL_API_URL = "https://api.mistral.ai/v1/chat/completions"
 
 def get_mistral_headers():
