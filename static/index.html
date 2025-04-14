@@ -502,6 +502,164 @@
   </div>
 
   <script>
+    // Add this script to your index.html
+document.addEventListener('DOMContentLoaded', function() {
+    // Check user authentication status
+    checkUserAuth();
+    
+    // Set up file upload listener
+    document.getElementById('fileUpload').addEventListener('change', handleFileUpload);
+    
+    // Set up chat input listener
+    document.getElementById('chatInput').addEventListener('keydown', function(e) {
+        if(e.key === 'Enter') {
+            sendMessage();
+        }
+    });
+});
+
+// Authentication functions
+function checkUserAuth() {
+    fetch('/user')
+        .then(response => response.json())
+        .then(data => {
+            if (data.authenticated) {
+                // User is logged in
+                document.querySelector('.user-avatar').src = data.profile_pic || 'https://i.pravatar.cc/300';
+                document.querySelector('.user-name').textContent = data.name;
+                document.querySelector('.user-email').textContent = data.email;
+            } else {
+                // User is not logged in, redirect to login page or show login button
+                // You can customize this behavior
+                document.querySelector('.user-profile').innerHTML = `
+                    <a href="/login" class="btn">Login with Google</a>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Authentication check failed:', error);
+        });
+}
+
+// File handling
+let pdfFullText = ''; // Store the full PDF text
+
+function handleFileUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    // Show loader
+    document.getElementById('loader').style.display = 'flex';
+    
+    fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update UI with file info
+            document.getElementById('pdfName').textContent = data.filename;
+            document.getElementById('pdfInfo').classList.remove('hidden');
+            document.getElementById('previewCard').classList.remove('hidden');
+            document.getElementById('chatCard').classList.remove('hidden');
+            
+            // Update preview
+            document.getElementById('pdfPreview').textContent = data.text;
+            
+            // Store full text for queries
+            pdfFullText = data.full_text;
+            
+            // Add initial bot message
+            addBotMessage(`I've analyzed your PDF "${data.filename}" (${data.page_count} pages). What would you like to know about it?`);
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Upload failed:', error);
+        alert('Upload failed. Please try again.');
+    })
+    .finally(() => {
+        document.getElementById('loader').style.display = 'none';
+    });
+}
+
+// Chat functions
+function sendMessage() {
+    const input = document.getElementById('chatInput');
+    const message = input.value.trim();
+    if (!message || !pdfFullText) return;
+    
+    // Add user message to chat
+    addUserMessage(message);
+    input.value = '';
+    
+    // Show loader
+    document.getElementById('loader').style.display = 'flex';
+    
+    // Send query to backend
+    fetch('/api/query', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            pdf_text: pdfFullText,
+            question: message
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Add bot response
+            addBotMessage(data.answer);
+        } else {
+            addBotMessage('Sorry, I encountered an error: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Query failed:', error);
+        addBotMessage('Sorry, I encountered a technical issue. Please try again.');
+    })
+    .finally(() => {
+        document.getElementById('loader').style.display = 'none';
+        // Scroll to bottom of chat
+        const chatContainer = document.getElementById('chatContainer');
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    });
+}
+
+function addUserMessage(text) {
+    const chatContainer = document.getElementById('chatContainer');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'chat-message user';
+    messageDiv.innerHTML = `
+        <div class="message-header">
+            <span class="name">You</span>
+            <span class="time">${new Date().toLocaleTimeString()}</span>
+        </div>
+        <div class="message-content">${text}</div>
+    `;
+    chatContainer.appendChild(messageDiv);
+}
+
+function addBotMessage(text) {
+    const chatContainer = document.getElementById('chatContainer');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'chat-message bot';
+    messageDiv.innerHTML = `
+        <div class="message-header">
+            <span class="name">Bot</span>
+            <span class="time">${new Date().toLocaleTimeString()}</span>
+        </div>
+        <div class="message-content">${text}</div>
+    `;
+    chatContainer.appendChild(messageDiv);
+}
     function sendMessage() {
       const input = document.getElementById('chatInput');
       const message = input.value.trim();
