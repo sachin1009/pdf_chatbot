@@ -1,5 +1,5 @@
 
-PDF Chatbot
+#PDF Chatbot
 An intelligent web application that allows users to upload PDF documents and interact with them through a conversational interface. Powered by the Mistral AI API, this chatbot can understand and answer questions based on the content of the uploaded PDF.
 
 Features
