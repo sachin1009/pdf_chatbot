@@ -1,95 +1,121 @@
+# 🤖 PDF Chatbot – AI-Powered Document Assistant
 
-#PDF Chatbot
-An intelligent web application that allows users to upload PDF documents and interact with them through a conversational interface. Powered by the Mistral AI API, this chatbot can understand and answer questions based on the content of the uploaded PDF.
+**PDF Chatbot** is a smart web application that allows users to **upload any PDF** and **chat with it** using natural language. It uses the **Mistral AI API** to understand and answer your queries based on the document’s content.
 
-Features
-Secure User Authentication: Employs Google OAuth 2.0 for a secure and seamless login experience.
-PDF Upload and Processing: Users can easily upload PDF files. The backend extracts text content for analysis.
-Interactive Chat Interface: Ask questions in natural language and receive answers from the AI assistant.
-AI-Powered Q&A: Utilizes the Mistral AI API to provide accurate and context-aware answers based on the PDF's content.
-Responsive Design: A clean and modern user interface that works seamlessly on both desktop and mobile devices.
-Easy Deployment: Pre-configured for one-click deployment on the Render platform.
-Tech Stack
-Backend: Flask, Gunicorn
-PDF Processing: PyMuPDF
-Authentication: Flask-Login, Authlib (for Google OAuth)
-Frontend: HTML5, CSS3, JavaScript
-AI Service: Mistral AI API
-Deployment: Render
-Getting Started
-Follow these instructions to set up and run the project on your local machine.
+---
 
-Prerequisites
-Python 3.8+
-pip (Python package installer)
-A Google Cloud project with OAuth 2.0 credentials enabled.
-A Mistral AI API Key.
-Installation & Setup
-Clone the repository:
+## 🔗 Live Demo
 
-Bash
+🌐 [View Live](https://pdf-chatbot-663p.onrender.com/)  
 
-git clone https://github.com/sachin1009/pdf_chatbot.git
-cd pdf_chatbot
-Create and activate a virtual environment:
+DEMO : 
+ ![image](https://github.com/user-attachments/assets/bf120ccf-0753-4c4a-9085-3ee6d665d4cf)
+ ![image](https://github.com/user-attachments/assets/6a2294d2-e0a6-49da-bb75-b228045859e0)
+![image](https://github.com/user-attachments/assets/75daf5eb-86e5-4266-a787-f5b81a62017f)
 
-macOS/Linux:
-Bash
 
+https://github.com/user-attachments/assets/ce42ea19-eaf8-4b08-bbbf-11715c7e7e8e
+
+
+
+
+
+
+---
+
+## ✨ Features
+
+- 🔐 **Google OAuth 2.0 Login** – Secure and seamless authentication
+- 📄 **PDF Upload & Parsing** – Fast extraction of document content
+- 💬 **Chat Interface** – Ask anything about your uploaded PDF
+- 🤖 **Mistral AI Integration** – Context-aware, AI-generated answers
+- 📱 **Responsive Design** – Works great on both desktop and mobile
+- ☁️ **Deployable on Render** – One-click cloud deployment
+
+---
+
+## 🛠 Tech Stack
+
+- **Backend:** Flask, Gunicorn  
+- **Frontend:** HTML5, CSS3, JavaScript  
+- **PDF Parsing:** PyMuPDF  
+- **Authentication:** Flask-Login, Authlib (Google OAuth)  
+- **AI Engine:** Mistral AI API  
+- **Deployment:** Render
+
+---
+
+## 🚀 Getting Started
+
+### 📦 Prerequisites
+
+- Python 3.8 or higher  
+- pip (Python package installer)  
+- A Google Cloud project with OAuth 2.0 credentials  
+- A Mistral AI API Key
+
+---
+
+## 🔧 Installation & Setup
+
+### 1. Clone the repository
+
+
+git clone https://github.com/your-username/pdf_chatbot.git
+cd pdf_chatbot 
+
+
+2. Create a virtual environment
+# macOS/Linux
 python3 -m venv venv
 source venv/bin/activate
-Windows:
-Bash
 
+# Windows
 python -m venv venv
 .\venv\Scripts\activate
-Install the required dependencies:
 
-Bash
-
+3. Install Dependency 
 pip install -r requirements.txt
-Configure Environment Variables:
-Create a file named .env in the root directory of the project and add the following variables. These are essential for authentication and interacting with the AI service.
 
-Code snippet
+4.  Set up environment variables
+SECRET_KEY=your_secret_key
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+MISTRAL_API_KEY=your_mistral_api_key
 
-SECRET_KEY='a_strong_and_random_secret_key'
-GOOGLE_CLIENT_ID='your_google_client_id'
-GOOGLE_CLIENT_SECRET='your_google_client_secret'
-MISTRAL_API_KEY='your_mistral_api_key'
-SECRET_KEY: A random string for securing user sessions.
-GOOGLE_CLIENT_ID & GOOGLE_CLIENT_SECRET: Obtain these from your Google Cloud Console.
-MISTRAL_API_KEY: Your API key from the Mistral AI platform.
-Running the Application
-Start the Flask development server with the following command:
 
-Bash
+
+▶️ Running the Application
 
 flask run
-The application will be available at http://127.0.0.1:5000.
 
-Deployment
-This project is ready for deployment on Render.
+Access the app at: http://localhost:5000
 
-Push your code to a GitHub repository.
-Go to the Render Dashboard and create a New Web Service.
-Connect the GitHub repository you just created.
-Render will automatically detect the render.yaml file and configure the settings.
-Build Command: pip install -r requirements.txt
-Start Command: gunicorn app:app
-In the Environment tab, add the following secret files/environment variables:
-GOOGLE_CLIENT_ID
-GOOGLE_CLIENT_SECRET
-MISTRAL_API_KEY
-The SECRET_KEY will be auto-generated by Render as specified in render.yaml.
-Click Create Web Service. Render will build and deploy your application.
-API Endpoints
-The application exposes the following RESTful endpoints:
 
-GET /: Serves the main HTML page.
-GET /login: Initiates the Google OAuth login flow.
-GET /authorize: The callback URL for Google to redirect to after authentication.
-GET /logout: Logs the current user out.
-GET /user: Provides authenticated user's information to the frontend.
-POST /api/upload: Endpoint for uploading a PDF file. Requires user authentication.
-POST /api/query: Endpoint to submit a question about the PDF and get an AI-generated answer. Requires user authentication
+☁️ Deployment on Render
+Step-by-Step:
+Push your code to a GitHub repository
+
+Go to Render and create a New Web Service
+
+Connect your GitHub repo
+
+Render will detect the render.yaml and auto-configure settings
+
+
+🔌 API Endpoints
+Endpoint	Method	Description
+/	GET	Loads the main page
+/login	GET	Starts Google OAuth login
+/authorize	GET	Callback route for Google OAuth
+/logout	GET	Logs out the current user
+/user	GET	Returns authenticated user's profile info
+/api/upload	POST	Uploads a PDF (requires authentication)
+/api/query	POST	Sends user’s question and returns AI response
+
+
+
+🙌 Feedback & Contributions
+Have feedback or want to contribute?
+Feel free to fork the repo, raise issues, or submit a pull request.
+
